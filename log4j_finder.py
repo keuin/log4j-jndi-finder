@@ -7,7 +7,6 @@ keywords = [x.lower() for x in ['JndiLookup']]
 
 
 class RemovableZipfile:
-
     """
     Copied from https://github.com/python/cpython/pull/19336/commits/659eb048cc9cac73c46349eb29845bc5cd630f09
     """
@@ -86,7 +85,7 @@ class RemovableZipfile:
 
 
 def find_log4j(path: str,
-               ignore_case: bool = False,
+               ignore_case: bool = True,
                scan_only: bool = True,
                confirm_before_removing: bool = True) -> Iterator[str]:
     if os.path.isdir(path):
@@ -97,7 +96,7 @@ def find_log4j(path: str,
                 for kw in keywords:
                     if kw in file:
                         yield fpath
-                yield from find_log4j(fpath)
+                yield from find_log4j(fpath, ignore_case, scan_only, confirm_before_removing)
     else:
         # this is a single file, check if it is a .jar file and dig into
         if not path.endswith('.jar') or (ignore_case and path.lower().endswith('.jar')):
@@ -113,6 +112,7 @@ def find_log4j(path: str,
                         is_vulnerable = True
                         yield f'{path}:{info.filename}'
         if is_vulnerable and not scan_only:
+            print('Removing vulnerable files...')
             # try to remove vulnerable files in this .jar file
             with zipfile.ZipFile(path, 'a') as zf:
                 rz = RemovableZipfile(zf)
@@ -139,6 +139,7 @@ if __name__ == '__main__':
         confirm_before_removing = True  # this doesn't matter
     else:
         confirm_before_removing = input('Confirm before removing? (Y/n)').strip().lower() != 'n'
-    for s in find_log4j(input('Where to search (path to a directory, or path to a `.jar` file):'), scan_only=scan_only,
+    for s in find_log4j(input('Where to search (path to a directory, or path to a `.jar` file):'),
+                        scan_only=scan_only,
                         confirm_before_removing=confirm_before_removing):
         print(f'[ALERT] {s}')
