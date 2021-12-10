@@ -94,12 +94,12 @@ def find_log4j(path: str,
             for file in files:
                 fpath = os.path.join(root, file)
                 for kw in keywords:
-                    if kw in file:
+                    if kw in file.lower():
                         yield fpath
                 yield from find_log4j(fpath, ignore_case, scan_only, confirm_before_removing)
     else:
         # this is a single file, check if it is a .jar file and dig into
-        if not path.endswith('.jar') or (ignore_case and path.lower().endswith('.jar')):
+        if not (path.endswith('.jar') or (ignore_case and path.lower().endswith('.jar'))):
             return
         if not zipfile.is_zipfile(path):
             print(f'[WARN] Invalid ZIP magic of file `{path}`. Skip.')
