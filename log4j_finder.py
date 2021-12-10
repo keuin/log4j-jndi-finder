@@ -8,6 +8,10 @@ keywords = [x.lower() for x in ['JndiLookup']]
 
 class RemovableZipfile:
 
+    """
+    Copied from https://github.com/python/cpython/pull/19336/commits/659eb048cc9cac73c46349eb29845bc5cd630f09
+    """
+
     def __init__(self, zf: zipfile.ZipFile):
         self.zf = zf
 
